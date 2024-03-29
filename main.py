@@ -3,10 +3,8 @@ import json
 import os
 from dotenv import load_dotenv
 import time
-import smtplib, ssl
 
 load_dotenv()
-
 
 api_key = os.environ.get('API_KEY')
 destination = os.environ.get('destination')
@@ -26,10 +24,9 @@ response = requests.get(url, params=params)
 if response.status_code == 200:
     data = response.json()
     duration = data['rows'][0]['elements'][0]['duration']['text']
-    distance = data['rows'][0]['elements'][0]['distance']['text']
+    distance = data['rows'][0]['elements'][0]['distance']['text']   
 else:
     print("Error: ", response.status_code)
 
 
-password = os.environ.get('PASSWORD')
-port = 
+print(distance)
