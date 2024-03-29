@@ -3,8 +3,10 @@ import json
 import os
 from dotenv import load_dotenv
 import time
+import smtplib, ssl
 
 load_dotenv()
+
 
 api_key = os.environ.get('API_KEY')
 destination = os.environ.get('destination')
@@ -29,3 +31,5 @@ else:
     print("Error: ", response.status_code)
 
 
+password = os.environ.get('PASSWORD')
+port = 
