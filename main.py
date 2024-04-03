@@ -3,13 +3,7 @@ import json
 import os
 from dotenv import load_dotenv
 import time
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
-from email import encoders
-import smtplib
-
-
+import smtplib, ssl
 
 load_dotenv()
 
@@ -35,44 +29,22 @@ if response.status_code == 200:
     data = response.json()
     duration = data['rows'][0]['elements'][0]['duration']['text']
     distance = data['rows'][0]['elements'][0]['distance']['text']
-    
-    # Create textfile content
-    textfile_content = f"Duration: {duration}\nDistance: {distance}"
-    textfile = "distance_duration_info.txt"  # Define your filename
-    
-    # Writing to a text file
-    with open(textfile, 'w') as file:
-        file.write(textfile_content)
-    
-    # Email Information
-
-    subject = f"The contents of {textfile}"
-    
-    # Create a multipart message
-    msg = MIMEMultipart()
-    msg['From'] = sender
-    msg['To'] = to
-    msg['Subject'] = subject
-    
-    # Attach the body with the msg instance
-    msg.attach(MIMEText(textfile_content, 'plain'))
-    
-    # Open the file to be sent
-    with open(textfile, "rb") as attachment:
-        part = MIMEBase('application', 'octet-stream')
-        part.set_payload((attachment).read())
-        encoders.encode_base64(part)
-        part.add_header('Content-Disposition', "attachment; filename= %s" % textfile)
-        
-        # Attach the instance 'part' to instance 'msg'
-        msg.attach(part)
-    
-    # Send the email
-    server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-    server.login(sender, password)
-    text = msg.as_string()
-    server.sendmail(sender, to, text)
-    server.quit()
-    
 else:
     print("Error: ", response.status_code)
+
+
+def send_email():
+    port = 465  # For SSL
+    smtp_server = "smtp.gmail.com"
+    sender_email = os.environ.get('sender_email')  # Enter your address
+    receiver_email = os.environ.get('receiver_email')  # Enter receiver address
+    password = os.environ.get('password')
+    message = f"""\
+    Subject: Distance and Time
+
+    The distance between the two locations is {distance} and the time taken to travel is {duration}."""
+
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+        server.login(sender_email, password)
+        server.sendmail(sender_email, receiver_email, message)
